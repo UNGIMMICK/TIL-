@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>I AM - 부산 돈까스 비밀지도 & 대격투</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind Config for Dark Mode & Theme -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        katsu: {
+                            light: '#fb923c',
+                            DEFAULT: '#f97316',
+                            dark: '#ea580c',
+                        }
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
+                        'sizzle': 'sizzle 0.2s infinite ease-in-out',
+                    },
+                    keyframes: {
+                        sizzle: {
+                            '0%, 100%': { transform: 'translate(0, 0) rotate(0.5deg)' },
+                            '50%': { transform: 'translate(1px, -1px) rotate(-0.5deg)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 기본 마우스 커서: 바삭한 겉바속촉 핑크빛 돈까스 단면 */
+        html {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M4,12 C4,6 10,4 16,4 C22,4 28,6 28,12 C28,18 22,24 16,24 C10,24 4,18 4,12 Z" fill="%23f97316" stroke="%23ea580c" stroke-width="2"/><ellipse cx="16" cy="12" rx="8" ry="5" fill="%23fed7aa"/><ellipse cx="16" cy="12" rx="5" ry="3" fill="%23fecdd3"/><circle cx="16" cy="12" r="1.5" fill="%23e11d48"/><path d="M24,18 L28,22" stroke="%2394a3b8" stroke-width="2" stroke-linecap="round"/></svg>') 16 12, auto;
+        }
+        /* 버튼 및 상호작용 요소 호버 커서: 포크로 콕 집은 육즙 가득 돈까스 조각 */
+        a, button, select, input[type="submit"], .cursor-pointer, [role="button"] {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M6,22 L14,14" stroke="%2394a3b8" stroke-width="2.5" stroke-linecap="round"/><path d="M12,16 L12,12 M14,14 L10,14 M11,15 L7,11" stroke="%23cbd5e1" stroke-width="1.5"/><path d="M12,14 C12,8 18,6 24,6 C30,6 30,12 24,18 C18,24 12,20 12,14 Z" fill="%23f97316" stroke="%23ea580c" stroke-width="2"/><ellipse cx="21" cy="12" rx="4" ry="2.5" fill="%23fecdd3"/></svg>') 12 16, pointer;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            /* 모바일 드래그 및 오동작 방지 */
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* 스크롤바 맞춤 설정 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fdba74;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #ea580c;
+        }
+        /* 글래스모피즘 효과 */
+        .glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .dark .glass {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        /* 모바일 터치 연타 지연(300ms) 방지용 스타일 */
+        .touch-btn {
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+</head>
+<body class="bg-amber-50/40 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-500 overflow-x-hidden">
+
+    <!-- 상단 스크롤 진행률 표시줄 -->
+    <div id="scroll-indicator" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-400 z-50 transition-all duration-100" style="width: 0%;"></div>
+
+    <!-- 알림용 커스텀 토스트 (모바일 친화형: 모바일은 중앙 정렬 및 최적 가로 크기 유지) -->
+    <div id="custom-toast" class="fixed bottom-4 left-4 right-4 sm:bottom-auto sm:top-20 sm:left-auto sm:right-4 transform translate-y-20 sm:translate-y-0 sm:translate-x-full transition-all duration-300 z-50 flex items-center p-4 space-x-3 rounded-2xl shadow-2xl glass border-l-4 border-orange-500 max-w-full sm:max-w-sm" role="alert">
+        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-orange-600 bg-orange-100 rounded-lg dark:bg-orange-950/50 dark:text-orange-400">
+            <span id="toast-icon">✨</span>
+        </div>
+        <div class="flex-1">
+            <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white" id="toast-title">업적 발견!</h4>
+            <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5" id="toast-message">맛집 탐험 지수가 상승했습니다.</p>
+        </div>
+        <button onclick="hideToast()" class="text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg p-1.5 focus:outline-none">
+            <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+    </div>
+
+    <!-- 경험치 바 위젯 (반응형: 모바일 기기에서는 하단 고정 조이스틱 영역 충돌을 예방하기 위해 크기 및 간격을 압축) -->
+    <div class="fixed bottom-2 left-2 right-2 sm:bottom-6 sm:left-6 sm:right-auto z-40 max-w-full sm:w-[280px] p-3 sm:p-4 rounded-2xl glass shadow-xl flex flex-col space-y-1.5 sm:space-y-2 border border-orange-200 dark:border-slate-800">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="text-lg sm:text-xl">🍛</span>
+                <div>
+                    <h5 class="text-[9px] font-bold text-orange-500 dark:text-orange-400 uppercase tracking-widest leading-none">FOODIE LEVEL</h5>
+                    <p id="player-level" class="text-[10px] sm:text-xs font-black text-slate-700 dark:text-slate-200 mt-0.5">LV.1 방구석 미식가</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <span id="player-xp" class="text-sm sm:text-base font-black text-orange-600 dark:text-orange-400">0</span>
+                <span class="text-[9px] sm:text-[10px] text-slate-400">/ 100 XP</span>
+            </div>
+        </div>
+        <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 sm:h-2 overflow-hidden">
+            <div id="xp-bar" class="bg-gradient-to-r from-orange-500 to-amber-400 h-full transition-all duration-500" style="width: 0%;"></div>
+        </div>
+    </div>
+
+    <!-- 네비게이션 바 -->
+    <nav class="sticky top-0 z-40 glass border-b border-orange-100/50 dark:border-slate-800/50 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- 로고 -->
+                <a href="#" class="flex items-center space-x-2 text-base sm:text-lg font-black bg-gradient-to-r from-orange-600 to-amber-500 bg-clip-text text-transparent hover:scale-105 transition-transform" onclick="addXP(5, '홈페이지 탐색 개시!')">
+                    <span>🐖 BUSAN KATSU MAP</span>
+                </a>
+                
+                <!-- 데스크톱 전용 네비게이션 메뉴 -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#intro" class="text-sm font-medium text-slate-600 hover:text-orange-600 dark:text-slate-300 dark:hover:text-orange-400 transition-colors">토박이 철학</a>
+                    <a href="#fighting-game" class="text-sm font-medium text-slate-600 hover:text-orange-600 dark:text-slate-300 dark:hover:text-orange-400 transition-colors">돈까스 대격투 ⚔️</a>
+                    <a href="#quiz-zone" class="text-sm font-medium text-slate-600 hover:text-orange-600 dark:text-slate-300 dark:hover:text-orange-400 transition-colors">미식 퀴즈</a>
+                    <a href="#curation" class="text-sm font-medium text-slate-600 hover:text-orange-600 dark:text-slate-300 dark:hover:text-orange-400 transition-colors">엄선 비밀맛집</a>
+                    <a href="#ai-assistant" class="px-3.5 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold shadow-md transition-colors flex items-center space-x-1.5">
+                        <i class="fa-solid fa-utensils"></i>
+                        <span>AI 돈까스 비서</span>
+                    </a>
+                </div>
+
+                <!-- 테마/모바일 토글 버튼 -->
+                <div class="flex items-center space-x-2">
+                    <button id="theme-toggle" class="p-2 sm:p-2.5 rounded-xl hover:bg-orange-100/40 dark:hover:bg-slate-900 transition-colors text-slate-500 dark:text-slate-400 focus:outline-none" aria-label="테마 전환" onclick="toggleTheme()">
+                        <i id="theme-icon" class="fa-solid fa-moon text-base sm:text-lg"></i>
+                    </button>
+                    <button id="mobile-menu-btn" class="md:hidden p-2 sm:p-2.5 rounded-xl hover:bg-orange-100/40 dark:hover:bg-slate-900 transition-colors text-slate-500 dark:text-slate-400" aria-label="메뉴 토글">
+                        <i class="fa-solid fa-bars text-base sm:text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 모바일 드롭다운 메뉴 -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-orange-100/40 dark:border-slate-850 glass px-4 pt-2 pb-4 space-y-2">
+            <a href="#intro" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-orange-100/30 dark:hover:bg-slate-800" onclick="closeMobileMenu()">토박이 철학</a>
+            <a href="#fighting-game" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-orange-100/30 dark:hover:bg-slate-800" onclick="closeMobileMenu()">돈까스 대격투 ⚔️</a>
+            <a href="#quiz-zone" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-orange-100/30 dark:hover:bg-slate-800" onclick="closeMobileMenu()">미식 퀴즈</a>
+            <a href="#curation" class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-orange-100/30 dark:hover:bg-slate-800" onclick="closeMobileMenu()">엄선 비밀맛집</a>
+            <a href="#ai-assistant" class="block px-3 py-2 rounded-lg text-sm font-bold text-center bg-orange-500 text-white rounded-xl shadow-md" onclick="closeMobileMenu()">AI 돈까스 비서 대화</a>
+        </div>
+    </nav>
+
+    <!-- 히어로 섹션 (Hero Section) -->
+    <header class="relative min-h-[85vh] flex items-center justify-center overflow-hidden py-8 sm:py-12 px-4">
+        <!-- 배경 서클 그라데이션 일러스트 -->
+        <div class="absolute top-1/4 left-1/12 w-48 h-48 sm:w-64 sm:h-64 bg-orange-400/15 dark:bg-orange-600/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
+        <div class="absolute bottom-1/4 right-1/12 w-60 h-60 sm:w-80 sm:h-80 bg-yellow-400/15 dark:bg-amber-600/10 rounded-full blur-3xl -z-10 animate-pulse" style="animation-delay: 2.5s;"></div>
+
+        <div class="max-w-4xl mx-auto text-center relative z-10 w-full">
+            <span class="inline-flex items-center px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold bg-orange-100 dark:bg-orange-950/40 text-orange-700 dark:text-orange-400 mb-6 border border-orange-200/50 dark:border-orange-900/40 animate-bounce max-w-full">
+                <span class="truncate">🥩 진짜 부산 맛 미식가들을 위한 큐레이팅</span>
+            </span>
+            
+            <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight mb-6 leading-tight break-keep px-2">
+                내 인생의 가장 완벽한 바삭함,<br>
+                <span class="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 bg-clip-text text-transparent" id="typing-text"></span>
+            </h1>
+
+            <p class="text-xs sm:text-base md:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed break-keep px-4">
+                광고 가득한 맛집 블로그에 지치셨나요? 28년간 부산 방방곡곡의 돼지고기를 직접 경험하고 엄선한, 오직 육즙과 튀김옷의 밸런스만으로 평가한 진짜 로컬 돈까스 비밀지도를 대공개합니다.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4 w-full sm:w-auto">
+                <a href="#fighting-game" class="w-full sm:w-auto px-6 py-3.5 sm:px-8 sm:py-4 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-black text-sm shadow-lg shadow-orange-500/20 hover:shadow-orange-500/45 transition-all transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
+                    <span>돈까스 대격투 시작하기</span>
+                    <i class="fa-solid fa-gamepad"></i>
+                </a>
+                <a href="#curation" class="w-full sm:w-auto px-6 py-3.5 sm:px-8 sm:py-4 rounded-2xl glass hover:bg-orange-50 dark:hover:bg-slate-900 text-slate-800 dark:text-white font-bold text-sm transition-all border border-orange-200 dark:border-slate-800 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-map-location-dot text-orange-500"></i>
+                    <span>엄선 비밀맛집 비밀지도</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 큐레이터 소개 및 철학 (Philosophy) -->
+    <section id="intro" class="py-16 sm:py-24 bg-white dark:bg-slate-900/40 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 sm:text-center">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white break-keep">부산 토박이 오권욱의 돈까스 철학</h2>
+                <p class="mt-4 text-xs sm:text-sm md:text-base text-slate-500 dark:text-slate-400 max-w-2xl mx-auto break-keep">부산 해운대에서 나고 자란 28년 차 로컬 돈까스 사냥꾼이 직접 고안한 핵심 평가 기준입니다.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                <!-- 큐레이터 카드 비주얼 -->
+                <div class="lg:col-span-5 flex flex-col items-center">
+                    <div class="relative group">
+                        <div class="absolute -inset-1.5 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-3xl blur opacity-60 group-hover:opacity-100 transition duration-1000"></div>
+                        <div class="relative w-48 h-48 sm:w-72 sm:h-72 bg-orange-100 dark:bg-slate-850 rounded-3xl overflow-hidden flex items-center justify-center p-2">
+                            <!-- 돈까스 매니아를 형상화한 프리미엄 SVG 일러스트 -->
+                            <svg class="w-full h-full text-orange-500" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="100" cy="100" r="90" class="fill-orange-50 dark:fill-slate-800" stroke="#f97316" stroke-width="4"/>
+                                <path d="M40 100C40 60 70 50 100 50C130 50 160 60 160 100C160 140 140 150 100 150C60 150 40 140 40 100Z" class="fill-amber-100 dark:fill-slate-700"/>
+                                <circle cx="100" cy="100" r="30" class="fill-orange-400" />
+                                <circle cx="100" cy="100" r="24" class="fill-amber-600" />
+                                <line x1="40" y1="100" x2="160" y2="100" stroke="#ea580c" stroke-width="4" stroke-dasharray="8 4" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">오권욱 (Kwon-wook Oh)</h3>
+                        <p class="text-xs sm:text-sm text-orange-500 font-semibold mt-1">부산 해운대 태생, 28년 차 로컬 돈까스 사냥꾼</p>
+                    </div>
+                </div>
+
+                <!-- 3대 평가 기틀 (맞춤 인라인 SVG 그래픽 적용으로 깨짐 완전 방지) -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                        <!-- 철학 카드 1 -->
+                        <div class="p-5 sm:p-6 rounded-2xl border border-orange-100 dark:border-slate-800 bg-amber-50/10 dark:bg-slate-900/10 hover:shadow-lg transition-all cursor-pointer group" onclick="addXP(10, '원육 감별력 획득!')">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center mb-4 group-hover:bg-orange-500 group-hover:text-white transition-all">
+                                <!-- 고기 단면 슬라이스 형상 SVG -->
+                                <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"/>
+                                    <path d="M12 6c3.314 0 6 2.686 6 6s-2.686 6-6 6-6-2.686-6-6 2.686-6 6-6z"/>
+                                    <circle cx="12" cy="12" r="2"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2">지방과 살코기의 완벽한 비율</h4>
+                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed break-keep">
+                                살코기만 있으면 퍽퍽해질 수 있습니다. 가브리살이 적절히 붙은 등심 특유의 아삭하고 고소한 지방층이 완벽히 어우러진 원육만을 고집합니다.
+                            </p>
+                        </div>
+
+                        <!-- 철학 카드 2 -->
+                        <div class="p-5 sm:p-6 rounded-2xl border border-orange-100 dark:border-slate-800 bg-amber-50/10 dark:bg-slate-900/10 hover:shadow-lg transition-all cursor-pointer group" onclick="addXP(10, '크리스피 공학 이해!')">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-4 group-hover:bg-amber-500 group-hover:text-white transition-all">
+                                <!-- 뜨거운 바삭함 열기 형상 SVG -->
+                                <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2">상처 없는 극강의 바삭함</h4>
+                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed break-keep">
+                                튀김옷이 지나치게 딱딱하면 먹을 때 불편함을 초래합니다. 바삭한 구조는 단단히 살아있되, 기름기를 완전히 빼내어 깔끔하고 부드러운 식감을 주는 튀김 공법을 중요시합니다.
+                            </p>
+                        </div>
+
+                        <!-- 철학 카드 3 -->
+                        <div class="p-5 sm:p-6 rounded-2xl border border-orange-100 dark:border-slate-800 bg-amber-50/10 dark:bg-slate-900/10 hover:shadow-lg transition-all cursor-pointer group" onclick="addXP(10, '시즈닝 감별 기술 획득!')">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-yellow-500/10 text-yellow-500 flex items-center justify-center mb-4 group-hover:bg-yellow-500 group-hover:text-white transition-all">
+                                <!-- 소금 절구 페어링 형상 SVG -->
+                                <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 22a7 7 0 0 0 7-7H5a7 7 0 0 0 7 7z"/>
+                                    <path d="M12 2v10"/>
+                                    <circle cx="12" cy="15" r="2"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2">원초적인 소금 페어링</h4>
+                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed break-keep">
+                                강한 소스를 가득 끼얹는 것보다는 영국 말돈 소금이나 생와사비를 조금 얹어 원육 본연의 감칠맛을 극한으로 끌어올리는 구성을 지향합니다.
+                            </p>
+                        </div>
+
+                        <!-- 철학 카드 4 -->
+                        <div class="p-5 sm:p-6 rounded-2xl border border-orange-100 dark:border-slate-800 bg-amber-50/10 dark:bg-slate-900/10 hover:shadow-lg transition-all cursor-pointer group" onclick="addXP(10, '기다림의 진가 경험!')">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center mb-4 group-hover:bg-red-500 group-hover:text-white transition-all">
+                                <!-- 타이머/모래시계 형상 SVG -->
+                                <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                            </div>
+                            <h4 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2">뜸 들이기(Resting)의 디테일</h4>
+                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed break-keep">
+                                튀김기에서 꺼내자마자 바로 섭취하면 육즙이 보존되지 못합니다. 고기 열기를 안으로 가두어 겉바속촉의 기적을 실현하는 정확한 레스팅 타임을 체크합니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 돈까스 2D 격투 게임 섹션 (Tonkatsu 2D Fighting Game) -->
+    <section id="fighting-game" class="py-16 sm:py-20 bg-amber-50/20 dark:bg-slate-950 transition-colors">
+        <div class="max-w-5xl mx-auto px-4">
+            <div class="text-center mb-8 sm:mb-10">
+                <span class="px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-orange-100 dark:bg-orange-950 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-900/50">
+                    2D ACTION FIGHTING GAME
+                </span>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mt-4 break-keep">돈까스 대격투: 바삭함의 지배자 ⚔️</h2>
+                <p class="mt-3 text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-2xl mx-auto break-keep px-1">
+                    바삭한 등심 전사 <strong>'로스카츠'</strong>가 되어 안심 비술을 품은 지독한 CPU <strong>'히레카츠'</strong>를 격파하세요! <br>
+                    키보드 단축키(<span class="text-orange-500 font-bold">J, K, L</span>) 또는 모바일 가상 패드를 활용해 육즙의 패권을 쥐십시오.
+                </p>
+            </div>
+
+            <!-- 게임 프레임 & 컨트롤 허브 -->
+            <div class="p-3 sm:p-6 rounded-3xl border border-orange-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden">
+                <!-- 상단 전투 상태바 -->
+                <div class="flex items-center justify-between mb-4 px-1 sm:px-2 gap-2 sm:gap-4">
+                    <!-- 플레이어 체력 -->
+                    <div class="w-2/5">
+                        <div class="flex justify-between text-[10px] sm:text-xs font-bold mb-1 truncate">
+                            <span class="text-orange-600 dark:text-orange-400 truncate">P1: 로스카츠</span>
+                            <span id="player-hp-text">100%</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-800 h-2 sm:h-3 rounded-full overflow-hidden">
+                            <div id="player-hp-bar" class="bg-gradient-to-r from-red-500 to-orange-500 h-full w-full transition-all duration-150"></div>
+                        </div>
+                    </div>
+
+                    <!-- 중앙 대결 타이틀 & 타이머 -->
+                    <div class="text-center flex-shrink-0">
+                        <span class="text-lg sm:text-2xl font-black text-slate-950 dark:text-white block leading-none mb-0.5" id="game-timer">99</span>
+                        <span class="text-[8px] sm:text-[9px] font-bold text-orange-500 uppercase tracking-widest block">VS</span>
+                    </div>
+
+                    <!-- CPU 체력 -->
+                    <div class="w-2/5 text-right">
+                        <div class="flex justify-between text-[10px] sm:text-xs font-bold mb-1 truncate">
+                            <span id="cpu-hp-text">100%</span>
+                            <span class="text-indigo-500 dark:text-indigo-400 truncate">CPU: 히레카츠</span>
+                        </div>
+                        <div class="w-full bg-slate-200 dark:bg-slate-800 h-2 sm:h-3 rounded-full overflow-hidden flex justify-end">
+                            <div id="cpu-hp-bar" class="bg-gradient-to-l from-red-500 to-indigo-500 h-full w-full transition-all duration-150"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 격투 캔버스 스크린 (종횡비 및 터치 스케일 유지용 컨테이너) -->
+                <div class="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-850 bg-slate-950 shadow-inner">
+                    <canvas id="fight-canvas" class="block mx-auto w-full max-w-full h-auto bg-slate-950 touch-none" width="800" height="400"></canvas>
+                    
+                    <!-- 시작 / 승리 / 게임오버 오버레이 레이어 -->
+                    <div id="game-overlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col items-center justify-center p-4 sm:p-6 text-center">
+                        <h3 class="text-xl sm:text-3xl font-black text-white mb-2" id="overlay-title">바삭함의 정상을 가리다</h3>
+                        <p class="text-[10px] sm:text-xs text-slate-300 max-w-md mb-4 sm:mb-6 leading-relaxed break-keep px-2" id="overlay-desc">
+                            전통 2D 격투 엔진 구동 완료! 등심 전사의 바삭 잽, 크러스트 돌격킥, 그리고 궁극기인 '뜨거운 식용유 브레스'를 발사해 승리하세요.
+                        </p>
+                        <button onclick="startGame()" class="px-6 py-2.5 sm:px-8 sm:py-3.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-xs sm:text-sm shadow-lg shadow-orange-500/30 transition-all flex items-center space-x-2">
+                            <span>경기 개시 ⚔️</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 키보드 컨트롤 설명 가이드 -->
+                <div class="hidden sm:grid grid-cols-3 gap-4 mt-6 text-center text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/80 pt-4">
+                    <div>
+                        <span class="font-bold text-slate-700 dark:text-slate-200 block mb-1">움직임</span>
+                        <span><kbd class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded font-mono font-bold">A</kbd> 왼쪽 / <kbd class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded font-mono font-bold">D</kbd> 오른쪽</span>
+                    </div>
+                    <div>
+                        <span class="font-bold text-slate-700 dark:text-slate-200 block mb-1">도약</span>
+                        <span><kbd class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded font-mono font-bold">W</kbd> 점프</span>
+                    </div>
+                    <div>
+                        <span class="font-bold text-slate-700 dark:text-slate-200 block mb-1">공격 기틀</span>
+                        <span><kbd class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded font-mono font-bold text-orange-500">J</kbd> 잽 / <kbd class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded font-mono font-bold text-orange-500">K</kbd> 킥 / <kbd class="px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded font-mono font-bold text-orange-500">L</kbd> 필살기 브레스</span>
+                    </div>
+                </div>
+
+                <!-- 모바일 및 태블릿용 반응형 가상 모바일 패드 (Adaptive Touch Layout - 더블 탭 확대 지연 해소) -->
+                <div class="flex sm:hidden flex-col gap-4 mt-4 select-none bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl border border-slate-150 dark:border-slate-850">
+                    <div class="flex items-center justify-between w-full">
+                        <!-- 좌우 이동 + 점프 패드 -->
+                        <div class="flex items-center space-x-1.5">
+                            <button id="touch-left" class="touch-btn w-12 h-12 bg-slate-200 dark:bg-slate-800 active:bg-orange-500 dark:active:bg-orange-600 rounded-xl text-base flex items-center justify-center transition-colors shadow">
+                                <i class="fa-solid fa-arrow-left"></i>
+                            </button>
+                            <button id="touch-jump" class="touch-btn w-12 h-12 bg-slate-200 dark:bg-slate-800 active:bg-orange-500 dark:active:bg-orange-600 rounded-xl text-base flex items-center justify-center transition-colors shadow">
+                                <i class="fa-solid fa-arrow-up-long"></i>
+                            </button>
+                            <button id="touch-right" class="touch-btn w-12 h-12 bg-slate-200 dark:bg-slate-800 active:bg-orange-500 dark:active:bg-orange-600 rounded-xl text-base flex items-center justify-center transition-colors shadow">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </div>
+
+                        <!-- 액션 버튼 패드 -->
+                        <div class="flex items-center space-x-1.5">
+                            <button id="touch-light" class="touch-btn w-11 h-11 bg-slate-300 dark:bg-slate-850 text-slate-850 dark:text-white active:bg-amber-500 rounded-full font-black text-[10px] transition-colors shadow">
+                                JAB
+                            </button>
+                            <button id="touch-heavy" class="touch-btn w-11 h-11 bg-slate-300 dark:bg-slate-850 text-slate-850 dark:text-white active:bg-orange-500 rounded-full font-black text-[10px] transition-colors shadow">
+                                KICK
+                            </button>
+                            <button id="touch-special" class="touch-btn w-12 h-12 bg-orange-500 text-white active:bg-orange-600 rounded-full font-black text-[9px] flex items-center justify-center flex-col transition-colors shadow animate-pulse">
+                                <i class="fa-solid fa-fire-burner mb-0.5"></i>
+                                <span>BREATH</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 돌발 미니 퀴즈 위젯 섹션 (Quiz Zone) -->
+    <section id="quiz-zone" class="py-16 sm:py-24 bg-amber-50/30 dark:bg-slate-950 transition-colors">
+        <div class="max-w-xl mx-auto px-4">
+            <div class="text-center mb-8">
+                <span class="text-2xl sm:text-3xl">💡</span>
+                <h3 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white mt-2">돈까스 진성 매니아 감별 퀴즈</h3>
+                <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 break-keep px-2">퀴즈를 맞추면 +30 XP 보너스와 스페셜 프로필 배지를 획득합니다!</p>
+            </div>
+
+            <div class="p-5 sm:p-6 rounded-3xl border border-orange-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl relative overflow-hidden">
+                <p id="quiz-question" class="text-xs sm:text-sm text-slate-700 dark:text-slate-200 font-bold mb-6 break-keep">
+                    Q. "요즘 트렌디한 일본식 프리미엄 안심 돈까스를 커팅했을 때, 고기 단면이 선홍빛(붉은색)을 띠며 촉촉하게 빛나는 자연스러운 현상"을 설명하는 명칭은 무엇일까요?
+                </p>
+                <div class="space-y-3">
+                    <button onclick="answerQuiz(1)" class="w-full text-left p-3 sm:p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 hover:border-orange-500 dark:hover:border-orange-500 transition-all font-medium text-xs flex items-center space-x-3">
+                        <span class="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[9px] sm:text-[10px] font-bold">1</span>
+                        <span class="truncate">피가 덜 빠져서 생기는 안 익음 현상</span>
+                    </button>
+                    <button onclick="answerQuiz(2)" class="w-full text-left p-3 sm:p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 hover:border-orange-500 dark:hover:border-orange-500 transition-all font-medium text-xs flex items-center space-x-3">
+                        <span class="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[9px] sm:text-[10px] font-bold">2</span>
+                        <span class="truncate">미오글로빈(Myoglobin)의 전환 작용 현상</span>
+                    </button>
+                    <button onclick="answerQuiz(3)" class="w-full text-left p-3 sm:p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 hover:border-orange-500 dark:hover:border-orange-500 transition-all font-medium text-xs flex items-center space-x-3">
+                        <span class="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[9px] sm:text-[10px] font-bold">3</span>
+                        <span class="truncate">글루타민산나트륨 감칠맛 발현 현상</span>
+                    </button>
+                </div>
+                <div id="quiz-result" class="mt-4 p-3 sm:p-3.5 rounded-xl bg-green-100 dark:bg-green-950/40 text-green-800 dark:text-green-300 text-xs hidden flex items-center space-x-2 break-keep">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>정답입니다! 당신은 돈까스 단면의 영롱함을 아는 훌륭한 탐험가이십니다! (+30 XP 획득)</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 엄선 맛집 큐레이팅 리스트 (Curation Map Cards) -->
+    <section id="curation" class="py-16 sm:py-24 bg-white dark:bg-slate-900/40 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white break-keep">나만 알고 싶은 부산 돈까스 컬렉션</h2>
+                <p class="mt-4 text-xs sm:text-sm md:text-base text-slate-500 dark:text-slate-400 max-w-2xl mx-auto break-keep">부산 각 지역별 가장 개성이 뚜렷하고 깊은 감동을 주었던 레전드 3선을 소개합니다.</p>
+                
+                <!-- 필터 탭 -->
+                <div class="flex flex-wrap items-center justify-center gap-2 mt-8">
+                    <button onclick="filterKatsu('all')" class="px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold bg-orange-500 text-white shadow-sm" id="filter-all-btn">전체 맛집</button>
+                    <button onclick="filterKatsu('premium')" class="px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200" id="filter-premium-btn">프리미엄 정통 일식</button>
+                    <button onclick="filterKatsu('classic')" class="px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200" id="filter-classic-btn">추억의 레트로 경양식</button>
+                </div>
+            </div>
+
+            <!-- 카드 레이아웃 그리드 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                <!-- 맛집 1 (실존: 톤쇼우) -->
+                <div class="group katsu-card border border-orange-100 dark:border-slate-800 rounded-3xl overflow-hidden glass hover:shadow-2xl hover:-translate-y-2 transition-all duration-300" data-category="premium">
+                    <div class="h-40 sm:h-48 bg-gradient-to-tr from-orange-500 to-amber-600 relative overflow-hidden flex items-center justify-center p-6 text-white text-center">
+                        <div class="absolute inset-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:14px_14px]"></div>
+                        <div>
+                            <span class="text-[9px] sm:text-[10px] font-bold px-2.5 py-1 bg-white/20 rounded-full mb-2 inline-block">Premium Katsu</span>
+                            <h4 class="text-xl sm:text-2xl font-black mt-1">광안리 톤쇼우</h4>
+                        </div>
+                    </div>
+                    <div class="p-5 sm:p-6">
+                        <h4 class="text-base sm:text-lg font-bold mb-2 text-slate-900 dark:text-white break-keep">참숯향을 머금은 숯불 돈카츠의 혁명</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4 break-keep">
+                            핑크빛의 뛰어난 익힘 상태에 참숯 오븐 훈연을 거쳐 입안 가득 짙은 불향과 완벽한 육즙의 밸런스를 보여주는 극강의 프리미엄 일품 돈카츠입니다.
+                        </p>
+                        <button onclick="openKatsuModal('광안리 톤쇼우', '프리미엄 정통 일식', '수영구 민락동 광안대교 초입에 위치합니다. 상당한 대기 시간을 필요로 하지만 맛을 보면 대기 시간이 완벽히 보상되는 훌륭한 결과물을 제공합니다. 특히 버크셔K 특 로스카츠는 단연 최고입니다.', '참숯 훈연 카츠, 버크셔K 로스카츠, 프리미엄 히레카츠', '테이블링 오전 10시 정각 원격 대기 예약 시스템을 필수로 숙지하고 활용하는 것을 권장합니다.')" class="w-full py-2.5 sm:py-3 rounded-xl border border-orange-200 dark:border-slate-850 text-xs font-bold hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all flex items-center justify-center space-x-1.5">
+                            <span>상세 비밀 가이드 열기</span>
+                            <i class="fa-solid fa-folder-open"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 맛집 2 (실존: 이승학돈까스) -->
+                <div class="group katsu-card border border-orange-100 dark:border-slate-800 rounded-3xl overflow-hidden glass hover:shadow-2xl hover:-translate-y-2 transition-all duration-300" data-category="classic">
+                    <div class="h-40 sm:h-48 bg-gradient-to-tr from-amber-600 to-yellow-500 relative overflow-hidden flex items-center justify-center p-6 text-white text-center">
+                        <div class="absolute inset-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:14px_14px]"></div>
+                        <div>
+                            <span class="text-[9px] sm:text-[10px] font-bold px-2.5 py-1 bg-white/20 rounded-full mb-2 inline-block">Retro Classic</span>
+                            <h4 class="text-xl sm:text-2xl font-black mt-1">남포동 이승학돈까스</h4>
+                        </div>
+                    </div>
+                    <div class="p-5 sm:p-6">
+                        <h4 class="text-base sm:text-lg font-bold mb-2 text-slate-900 dark:text-white break-keep">1999년부터 지켜온 정통 경양식의 근본</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4 break-keep">
+                            25가지 엄선된 재료로 우려낸 수제 브라운 소스와 두툼하고 바삭한 고기의 조화가 돋보입니다. 얇게 튀겨낸 경양식 튀김옷과 정갈한 소스의 조화가 명품입니다.
+                        </p>
+                        <button onclick="openKatsuModal('남포동 이승학돈까스', '추억의 레트로 경양식', '1999년부터 남포동 광복동 골목을 당당히 지켜온 경양식의 명가입니다. 식전에 따뜻한 크림 수프를 제공하는 클래식한 연출을 여전히 고수하고 있으며, 입안을 부드럽게 감싸는 브라운 소스의 풍미가 인상적입니다.', '매운돈까스, 치즈돈까스, 고구마치즈돈까스', '식전에 제공되는 따뜻한 스프에 후추를 곁들인 뒤, 바삭한 돈까스에 양배추 샐러드를 올려 조화롭게 즐겨 보시기 바랍니다.')" class="w-full py-2.5 sm:py-3 rounded-xl border border-orange-200 dark:border-slate-850 text-xs font-bold hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all flex items-center justify-center space-x-1.5">
+                            <span>상세 비밀 가이드 열기</span>
+                            <i class="fa-solid fa-folder-open"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 맛집 3 (실존: 수수하지만 굉장해) -->
+                <div class="group katsu-card border border-orange-100 dark:border-slate-800 rounded-3xl overflow-hidden glass hover:shadow-2xl hover:-translate-y-2 transition-all duration-300" data-category="premium">
+                    <div class="h-40 sm:h-48 bg-gradient-to-tr from-orange-600 to-red-500 relative overflow-hidden flex items-center justify-center p-6 text-white text-center">
+                        <div class="absolute inset-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:14px_14px]"></div>
+                        <div>
+                            <span class="text-[9px] sm:text-[10px] font-bold px-2.5 py-1 bg-white/20 rounded-full mb-2 inline-block">Modern Premium</span>
+                            <h4 class="text-xl sm:text-2xl font-black mt-1">서면 수수하지만 굉장해</h4>
+                        </div>
+                    </div>
+                    <div class="p-5 sm:p-6">
+                        <h4 class="text-base sm:text-lg font-bold mb-2 text-slate-900 dark:text-white break-keep">정갈한 트렌디 정식과 완벽한 소금 페어링</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4 break-keep">
+                            미니멀한 디자인과 정돈된 구성 뒤에 숨어있는 뛰어난 완성도. 식감을 잘 살린 모둠 카츠 구성과 유자 소바의 산뜻함이 가치를 더합니다.
+                        </p>
+                        <button onclick="openKatsuModal('서면 수수하지만 굉장해', '프리미엄 정통 일식', '전포 사잇길 골목에 위치한 귀여운 캐릭터 브랜딩이 인상적인 매장입니다. 등심, 특등심, 안심을 세트로 담백하게 맛볼 수 있는 단일화된 고집스러운 메뉴 구성이 매력적입니다.', '모둠 카츠 정식(히레/로스/상로스)', '소금을 플레이트 위에 고르게 갈아서 튀김 단면을 가볍게 찍어 드시는 것이 원육의 깊은 단맛을 즐길 수 있는 최고의 방법입니다.')" class="w-full py-2.5 sm:py-3 rounded-xl border border-orange-200 dark:border-slate-850 text-xs font-bold hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all flex items-center justify-center space-x-1.5">
+                            <span>상세 비밀 가이드 열기</span>
+                            <i class="fa-solid fa-folder-open"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gemini 2.5 Flash API 활용한 AI 돈까스 전문가 비서 (AI Agent) -->
+    <section id="ai-assistant" class="py-16 sm:py-24 bg-white dark:bg-slate-900/40 transition-colors">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <span class="px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-orange-100 dark:bg-orange-950 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-900/50">
+                    REALTIME GOURMET AGENT
+                </span>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mt-4 break-keep">AI 오권욱 - 부산 돈까스 가이드</h2>
+                <p class="mt-4 text-xs sm:text-sm text-slate-500 dark:text-slate-400 break-keep px-2">
+                    부산 돈까스에 대해 질문이 있으신가요? 28년 차 해운대 토박이 AI 오권욱이 정성스럽게 답변해 드립니다!
+                    <span class="block text-[10px] sm:text-xs text-orange-500 font-bold mt-1.5 break-keep">(예시: 톤쇼우 대기 노하우가 무엇인가요? / 남포동이나 서면 근처 추천 매장을 알고 싶어요 / 등심과 안심 중 무엇을 더 추천하시나요?)</span>
+                </p>
+            </div>
+
+            <!-- 대화창 구조 -->
+            <div class="rounded-3xl border border-orange-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 shadow-2xl overflow-hidden flex flex-col h-[480px] sm:h-[520px]">
+                <!-- 대화창 헤더 -->
+                <div class="px-4 py-3 sm:px-6 sm:py-4 border-b border-orange-100/50 dark:border-slate-800 bg-white dark:bg-slate-950 flex items-center justify-between">
+                    <div class="flex items-center space-x-2 sm:space-x-3">
+                        <div class="relative">
+                            <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-white text-base sm:text-lg">
+                                👨‍🍳
+                            </div>
+                            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-slate-950 rounded-full"></span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white leading-none">AI 오권욱 소장</h4>
+                            <p class="text-[9px] sm:text-xs text-green-500 mt-1">실시간 부산 로컬 가이드 구동 중</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-1 sm:space-x-1.5 text-slate-400 dark:text-slate-500 text-[10px] sm:text-xs">
+                        <i class="fa-solid fa-bolt text-orange-500 animate-pulse"></i>
+                        <span>Gemini 2.5 Flash</span>
+                    </div>
+                </div>
+
+                <!-- 대화 스레드 -->
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+                    <!-- 초기 웰컴 메세지 -->
+                    <div class="flex items-start space-x-2.5 sm:space-x-3">
+                        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-orange-500 text-white flex items-center justify-center text-[10px] sm:text-xs flex-shrink-0 font-bold">👨‍🍳</div>
+                        <div class="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-950 text-xs max-w-[85%] sm:max-w-[80%] border border-slate-100 dark:border-slate-850/40 text-slate-700 dark:text-slate-300 shadow-sm leading-relaxed break-keep">
+                            안녕하세요! 부산 해운대에서 나고 자란 28년 차 로컬 돈까스 사냥꾼 오권욱입니다. 🐖✨<br>
+                            광고성 글에서 벗어나 진짜 알짜배기 고기 맛을 알고 싶으신 여러분을 환영합니다. 지독한 광안리 톤쇼우 예약 전략부터 남포동에서 전통을 지켜온 이승학돈까스의 가치까지, 검증된 미학을 바탕으로 성실히 조언해 드리겠습니다. 편하게 물어보세요!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 채팅 입력 바 -->
+                <div class="p-3 sm:p-4 bg-white dark:bg-slate-950 border-t border-orange-100/50 dark:border-slate-850">
+                    <form id="chat-form" onsubmit="handleChatSubmit(event)" class="flex items-center space-x-2 sm:space-x-3">
+                        <input id="chat-input" type="text" placeholder="오권욱 소장에게 로컬 추천을 받아보세요..." class="flex-1 px-3 py-2.5 sm:px-4 sm:py-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-xs text-slate-900 dark:text-white transition-all">
+                        <button type="submit" class="p-2.5 sm:p-3 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20 transition-all flex-shrink-0">
+                            <i class="fa-solid fa-paper-plane text-[10px] sm:text-xs"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 푸터 및 의견 발송 구조 (Footer & Contact) -->
+    <footer class="bg-amber-50/20 dark:bg-slate-950 border-t border-orange-100/30 dark:border-slate-850 py-12 sm:py-16 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-12">
+                <!-- 아웃라인 정보 -->
+                <div>
+                    <h3 class="text-lg sm:text-xl font-black bg-gradient-to-r from-orange-600 to-amber-500 bg-clip-text text-transparent mb-4">🐖 BUSAN KATSU MAP</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-sm break-keep">
+                        본 큐레이션은 광고를 일절 배제하며, 해운대에서 자라나며 고기를 마주해 온 오권욱의 주관적이지만 엄격하고 확실한 기준에 따라 설계되었습니다.
+                    </p>
+                    <div class="flex space-x-4 mt-6">
+                        <a href="https://github.com" target="_blank" class="w-10 h-10 rounded-full border border-orange-200 dark:border-slate-800 flex items-center justify-center text-slate-500 hover:text-orange-500 transition-colors">
+                            <i class="fa-brands fa-github text-sm sm:text-base"></i>
+                        </a>
+                        <a href="mailto:contact@example.com" class="w-10 h-10 rounded-full border border-orange-200 dark:border-slate-800 flex items-center justify-center text-slate-500 hover:text-orange-500 transition-colors">
+                            <i class="fa-solid fa-envelope text-sm sm:text-base"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 큐레이터 추가 의견 제보하기 -->
+                <div class="p-5 sm:p-6 rounded-3xl bg-white dark:bg-slate-900 border border-orange-100/50 dark:border-slate-800/80">
+                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-4">숨겨진 진짜 맛집 제보하기</h4>
+                    <form onsubmit="handleContactSubmit(event)" class="space-y-4">
+                        <input type="text" id="contact-name" placeholder="제보자 이름 또는 닉네임" required class="w-full px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px] sm:text-xs focus:outline-none focus:border-orange-500 text-slate-900 dark:text-white transition-all">
+                        <textarea id="contact-message" rows="3" placeholder="맛집 이름과 함께 강추하는 포인트를 상세하게 가르쳐 주시면 검증 후 반영하겠습니다..." required class="w-full px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px] sm:text-xs focus:outline-none focus:border-orange-500 text-slate-900 dark:text-white transition-all"></textarea>
+                        <button type="submit" class="w-full py-2.5 sm:py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-[11px] sm:text-xs shadow-md transition-all">제보장 보내기</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="border-t border-orange-100/30 dark:border-slate-800 pt-8 text-center text-[9px] sm:text-[10px] text-slate-400">
+                <p>© 2026 Oh Kwon-wook. All Rights Reserved. Crafted with 🧡 and Vanilla JS.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 맛집 세부 탐험 전용 공용 모달창 (반응형: 모바일은 패딩 감축 및 최대 세로 크기 제한) -->
+    <div id="katsu-modal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="relative w-full max-w-md rounded-3xl bg-white dark:bg-slate-900 border border-orange-100 dark:border-slate-800 p-5 sm:p-6 shadow-2xl transform scale-95 transition-transform duration-300 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeKatsuModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-950 dark:hover:text-white rounded-lg p-1.5 sm:p-2">
+                <i class="fa-solid fa-xmark text-base sm:text-lg"></i>
+            </button>
+            <div class="mb-4">
+                <span class="px-2.5 py-1 rounded-full text-[8px] sm:text-[9px] font-bold bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-400" id="modal-category">CATEGORY</span>
+                <h3 class="text-xl sm:text-2xl font-black mt-2 text-slate-900 dark:text-white break-keep pr-8" id="modal-title">KATSU TITLE</h3>
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 mb-4 leading-relaxed break-keep" id="modal-description">비밀 가이드 내용이 들어갑니다.</p>
+            
+            <div class="mt-4 border-t border-orange-50 dark:border-slate-800/80 pt-4 space-y-3">
+                <div>
+                    <h4 class="text-[9px] sm:text-[10px] font-bold uppercase text-orange-500 leading-none mb-1">추천 시그니처 메뉴</h4>
+                    <p class="text-xs text-slate-700 dark:text-slate-300 break-keep" id="modal-menus">로스카츠, 히레카츠</p>
+                </div>
+                <div>
+                    <h4 class="text-[9px] sm:text-[10px] font-bold uppercase text-orange-500 leading-none mb-1">오권욱 소장만의 시크릿 웨이팅/취식 팁</h4>
+                    <p class="text-xs text-slate-700 dark:text-slate-300 break-keep" id="modal-tips">웨이팅 공략 비법</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 단독 작성구역 -->
+    <script>
+        // 1. 게이미피케이션 상태 변수
+        let xp = 0;
+        let level = 1;
+        const levelTitles = [
+            "방구석 미식가",
+            "동네 골목 탐정",
+            "진성 크리스피 러버",
+            "돈까스 감별 전문가",
+            "그랜드 마스터 미식 명인"
+        ];
+        
+        // 2. 타이핑 효과
+        const words = ["최고의 부산 돈까스 비밀지도", "바삭한 크러스트와 영롱한 육즙", "인생 등심과 안심의 맛을 찾아서"];
+        let wordIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typingTextEl = document.getElementById('typing-text');
+
+        function typeEffect() {
+            if (!typingTextEl) return;
+            const currentWord = words[wordIndex];
+            
+            if (isDeleting) {
+                typingTextEl.textContent = currentWord.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typingTextEl.textContent = currentWord.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let typeSpeed = isDeleting ? 45 : 95;
+
+            if (!isDeleting && charIndex === currentWord.length) {
+                typeSpeed = 1600; // 완료 대기
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                wordIndex = (wordIndex + 1) % words.length;
+                typeSpeed = 500; // 단어 변경 후 휴지기
+            }
+
+            setTimeout(typeEffect, typeSpeed);
+        }
+
+        // 3. 다크모드 제어
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                themeIcon.className = "fa-solid fa-moon text-base sm:text-lg";
+                addXP(5, '화사하고 밝은 낮 모드입니다.');
+            } else {
+                html.classList.add('dark');
+                themeIcon.className = "fa-solid fa-sun text-base sm:text-lg text-amber-400";
+                addXP(5, '지도를 보다 깊이 탐색하기 좋은 다크 모드입니다.');
+            }
+        }
+
+        // 4. 스크롤 진행률 (Scroll Indicator)
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            const indicator = document.getElementById('scroll-indicator');
+            if (indicator) indicator.style.width = scrolled + "%";
+        });
+
+        // 5. 경험치 및 등급 시스템
+        function addXP(amount, message) {
+            xp += amount;
+            if (xp >= 100) {
+                xp = xp - 100;
+                level = Math.min(level + 1, 5);
+                showToast("🎉 미식 등급이 대폭 상승했습니다!", `레벨 ${level} (${levelTitles[level-1]}) 단계로 승급하셨습니다.`);
+            } else {
+                showToast("✨ 지식 포인트 획득!", `${message} (+${amount} XP)`);
+            }
+            updateGamificationUI();
+        }
+
+        function updateGamificationUI() {
+            const levelEl = document.getElementById('player-level');
+            const xpEl = document.getElementById('player-xp');
+            const xpBarEl = document.getElementById('xp-bar');
+
+            if (levelEl) levelEl.textContent = `LV.${level} ${levelTitles[level-1]}`;
+            if (xpEl) xpEl.textContent = xp;
+            if (xpBarEl) xpBarEl.style.width = `${xp}%`;
+        }
+
+        // 6. 커스텀 토스트 알림 작동 로직
+        let toastTimeout;
+        function showToast(title, message, icon = "✨") {
+            const toast = document.getElementById('custom-toast');
+            const toastTitle = document.getElementById('toast-title');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+
+            if (!toast) return;
+
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+            toastIcon.textContent = icon;
+
+            // 모바일에서 하단 밀착형 슬라이드 인, 데스크톱에서 우측 슬라이드 인 클래스 관리
+            toast.classList.remove('translate-y-20', 'sm:translate-x-full');
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                hideToast();
+            }, 4000);
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('custom-toast');
+            if (toast) {
+                toast.classList.add('translate-y-20', 'sm:translate-x-full');
+            }
+        }
+
+        // 7. 모바일 토글 메뉴 기능 연계
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                addXP(2, '모바일 간이 메뉴를 열었습니다.');
+            });
+        }
+        function closeMobileMenu() {
+            if (mobileMenu) {
+                mobileMenu.classList.add('hidden');
+            }
+        }
+
+        // 8. 미니 퀴즈 채점 기능
+        let isQuizSolved = false;
+        function answerQuiz(option) {
+            const resultBox = document.getElementById('quiz-result');
+            if (isQuizSolved) {
+                showToast("풀이 완료", "이미 퀴즈를 맞히고 지식인 인증을 받으셨습니다.", "⚠️");
+                return;
+            }
+            if (option === 2) {
+                isQuizSolved = true;
+                resultBox.classList.remove('hidden');
+                addXP(30, "돈까스 상식 정답 보너스를 받았습니다!");
+            } else {
+                showToast("아쉽습니다!", "정답이 아닙니다. 다시 시도해 보세요.", "❌");
+            }
+        }
+
+        // 9. 맛집 필터링 인터랙션
+        function filterKatsu(category) {
+            addXP(5, '관심사에 맞는 맛집 카테고리를 필터링했습니다.');
+            const cards = document.querySelectorAll('.katsu-card');
+            cards.forEach(card => {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            const filterButtons = ['all', 'premium', 'classic'];
+            filterButtons.forEach(btnType => {
+                const btn = document.getElementById(`filter-${btnType}-btn`);
+                if (btn) {
+                    if (btnType === category) {
+                        btn.className = "px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold bg-orange-500 text-white shadow-sm";
+                    } else {
+                        btn.className = "px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200";
+                    }
+                }
+            });
+        }
+
+        // 10. 세부 안내 가이드 팝업 모달 구동
+        function openKatsuModal(title, category, desc, menus, tips) {
+            const modal = document.getElementById('katsu-modal');
+            const mTitle = document.getElementById('modal-title');
+            const mCategory = document.getElementById('modal-category');
+            const mDesc = document.getElementById('modal-description');
+            const mMenus = document.getElementById('modal-menus');
+            const mTips = document.getElementById('modal-tips');
+
+            if (!modal) return;
+
+            mTitle.textContent = title;
+            mCategory.textContent = category;
+            mDesc.textContent = desc;
+            mMenus.textContent = menus;
+            mTips.textContent = tips;
+
+            modal.classList.remove('pointer-events-none', 'opacity-0');
+            modal.querySelector('div').classList.remove('scale-95');
+            modal.querySelector('div').classList.add('scale-100');
+
+            addXP(15, `'${title}' 맛집 가이드를 정독하고 있습니다.`);
+        }
+
+        function closeKatsuModal() {
+            const modal = document.getElementById('katsu-modal');
+            if (!modal) return;
+            modal.classList.add('pointer-events-none', 'opacity-0');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+        }
+
+        // 11. 제보 제출 관리
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('contact-name').value;
+            showToast("📮 제출 완료!", `${name}님, 정성스러운 정보를 접수했습니다. 철저한 검증을 거쳐 업로드하겠습니다!`, "📬");
+            addXP(25, "맛집 기여 보너스 포인트를 받았습니다!");
+            e.target.reset();
+        }
+
+        // 12. 웹 오디오 신디사이저 (프로그램 사운드 제작)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+
+                if (type === 'hit_light') {
+                    // 가벼운 바삭 잽 사운드
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.15);
+                } else if (type === 'hit_heavy') {
+                    // 묵직한 크러스트 강킥 사운드
+                    let osc = audioCtx.createOscillator();
+                    let osc2 = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.25);
+                    
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(80, audioCtx.currentTime);
+                    osc2.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.25);
+
+                    gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    
+                    osc.connect(gain);
+                    osc2.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.start();
+                    osc2.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+                    osc2.stop(audioCtx.currentTime + 0.25);
+                } else if (type === 'special') {
+                    // 고온 식용유 브레스 레이저 사운드
+                    let bufferSize = audioCtx.sampleRate * 0.4;
+                    let buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                    let data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = Math.random() * 2 - 1; // 화이트 노이즈
+                    }
+                    let noise = audioCtx.createBufferSource();
+                    noise.buffer = buffer;
+
+                    let filter = audioCtx.createBiquadFilter();
+                    filter.type = 'bandpass';
+                    filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    filter.frequency.linearRampToValueAtTime(2000, audioCtx.currentTime + 0.4);
+
+                    let gain = audioCtx.createGain();
+                    gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+
+                    noise.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    noise.start();
+                } else if (type === 'jump') {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(500, audioCtx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.2);
+                }
+            } catch (err) {
+                console.log("AudioContext is not activated or supported: ", err);
+            }
+        }
+
+        // 13. 2D 격투 게임 기틀 설정
+        const canvas = document.getElementById('fight-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // 게임 스케일 상태
+        let gameActive = false;
+        let gameTimerVal = 99;
+        let timerInterval = null;
+        let screenShake = 0;
+
+        // 조작 단자 매핑 상태
+        const keys = {
+            a: false,
+            d: false,
+            w: false
+        };
+
+        // 이펙트 파티클 풀
+        let particles = [];
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 8;
+                this.vy = (Math.random() - 0.5) * 8 - 3;
+                this.radius = Math.random() * 4 + 2;
+                this.color = color;
+                this.alpha = 1;
+                this.gravity = 0.2;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.alpha -= 0.03;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.alpha);
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // 캐릭터 틀 정의
+        class Fighter {
+            constructor({ x, y, color, isPlayer, name }) {
+                this.x = x;
+                this.y = y;
+                this.width = 65;
+                this.height = 75;
+                this.color = color;
+                this.isPlayer = isPlayer;
+                this.name = name;
+
+                this.vx = 0;
+                this.vy = 0;
+                this.gravity = 0.6;
+                this.ground = 320; // 땅 기준선 Y축
+                this.isGrounded = false;
+
+                this.hp = 100;
+                this.direction = isPlayer ? 1 : -1; // 1: 우측, -1: 좌측
+                
+                // 전사 상태 기틀
+                this.state = 'idle'; // idle, walking, attack, hit, die
+                this.attackCooldown = 0;
+                this.hitTimer = 0;
+
+                // 히트박스 영역
+                this.hitBox = {
+                    x: 0,
+                    y: 0,
+                    width: 100,
+                    height: 40,
+                    active: false,
+                    type: null // light, heavy, special
+                };
+            }
+
+            update() {
+                // 물리 중력 계산
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.y + this.height < this.ground) {
+                    this.vy += this.gravity;
+                    this.isGrounded = false;
+                } else {
+                    this.y = this.ground - this.height;
+                    this.vy = 0;
+                    this.isGrounded = true;
+                }
+
+                // 이동 마찰 감쇠
+                this.vx *= 0.85;
+
+                // 스크린 경계선 펜스 충돌 체크
+                if (this.x < 0) this.x = 0;
+                if (this.x + this.width > canvas.width) this.x = canvas.width - this.width;
+
+                // 히트박스 포지션 동기화
+                if (this.direction === 1) {
+                    this.hitBox.x = this.x + this.width;
+                } else {
+                    this.hitBox.x = this.x - this.hitBox.width;
+                }
+                this.hitBox.y = this.y + 15;
+
+                // 쿨다운 차감
+                if (this.attackCooldown > 0) this.attackCooldown--;
+                if (this.attackCooldown === 0 && this.state === 'attack') {
+                    this.state = 'idle';
+                    this.hitBox.active = false;
+                }
+
+                // 피격 연출 타이머 관리
+                if (this.hitTimer > 0) {
+                    this.hitTimer--;
+                    if (this.hitTimer === 0 && this.state === 'hit') {
+                        this.state = 'idle';
+                    }
+                }
+            }
+
+            draw() {
+                ctx.save();
+
+                // 피격 시 깜빡임 연출
+                if (this.state === 'hit' && Math.floor(Date.now() / 50) % 2 === 0) {
+                    ctx.globalAlpha = 0.4;
+                }
+
+                // 1. 본체 돈까스 바디 그리기 (둥근 사각형)
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+                ctx.shadowBlur = 10;
+                ctx.fillStyle = this.color;
+                
+                // 등심과 안심 고기 디자인 형태 변이
+                if (this.isPlayer) {
+                    // 네모나고 바삭한 로스카츠 스타일
+                    fillRoundedRect(ctx, this.x, this.y, this.width, this.height, 12);
+                    // 겉 표면 거친 빵가루 튀김옷 디테일 추가
+                    ctx.fillStyle = '#ea580c';
+                    fillRoundedRect(ctx, this.x + 4, this.y + 4, this.width - 8, this.height - 8, 8);
+                } else {
+                    // 동그랗고 선홍빛이 도는 촉촉한 히레카츠 스타일
+                    ctx.beginPath();
+                    ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#fda4af'; // 안심 특유의 핑크 단면
+                    ctx.beginPath();
+                    ctx.arc(this.x + this.width / 2, this.y + this.height / 2, this.width / 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.shadowBlur = 0;
+
+                // 2. 캐릭터 얼굴 표정 드로잉
+                ctx.fillStyle = '#0f172a';
+                let eyeOffset = this.direction === 1 ? 12 : -12;
+                let eyeY = this.y + 25;
+                let eyeX1 = this.x + this.width / 2 + eyeOffset - 6;
+                let eyeX2 = this.x + this.width / 2 + eyeOffset + 6;
+
+                if (this.state === 'hit') {
+                    // 피격 표정 (X 자 눈)
+                    drawCrossEye(ctx, eyeX1, eyeY);
+                    drawCrossEye(ctx, eyeX2, eyeY);
+                } else if (this.state === 'attack') {
+                    // 성난 결투 눈빛
+                    ctx.beginPath();
+                    ctx.arc(eyeX1, eyeY, 4, 0, Math.PI * 2);
+                    ctx.arc(eyeX2, eyeY, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    // 눈썹 성난 사선
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.moveTo(eyeX1 - 5, eyeY - 6);
+                    ctx.lineTo(eyeX1 + 5, eyeY - 2);
+                    ctx.moveTo(eyeX2 + 5, eyeY - 6);
+                    ctx.lineTo(eyeX2 - 5, eyeY - 2);
+                    ctx.stroke();
+                } else {
+                    // 기본 평온/비장한 눈빛
+                    ctx.beginPath();
+                    ctx.arc(eyeX1, eyeY, 4, 0, Math.PI * 2);
+                    ctx.arc(eyeX2, eyeY, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // 3. 공격 사정거리 시각 효과 (히트박스 시각화)
+                if (this.hitBox.active && this.state === 'attack') {
+                    ctx.fillStyle = this.hitBox.type === 'special' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(249, 115, 22, 0.3)';
+                    fillRoundedRect(ctx, this.hitBox.x, this.hitBox.y, this.hitBox.width, this.hitBox.height, 8);
+                }
+
+                ctx.restore();
+            }
+
+            jump() {
+                if (this.isGrounded) {
+                    this.vy = -14;
+                    this.isGrounded = false;
+                    playSound('jump');
+                }
+            }
+
+            attack(type) {
+                if (this.attackCooldown > 0 || this.state === 'hit') return;
+
+                this.state = 'attack';
+                this.hitBox.active = true;
+                this.hitBox.type = type;
+
+                if (type === 'light') {
+                    this.hitBox.width = 90;
+                    this.hitBox.height = 35;
+                    this.attackCooldown = 15;
+                    playSound('hit_light');
+                } else if (type === 'heavy') {
+                    this.hitBox.width = 110;
+                    this.hitBox.height = 45;
+                    this.attackCooldown = 28;
+                    playSound('hit_heavy');
+                } else if (type === 'special') {
+                    this.hitBox.width = 240;
+                    this.hitBox.height = 50;
+                    this.attackCooldown = 45;
+                    playSound('special');
+                    
+                    // 특수 고열 기름 구체 이펙트 방출 파티클
+                    for(let i=0; i<15; i++) {
+                        particles.push(new Particle(
+                            this.direction === 1 ? this.x + this.width : this.x,
+                            this.y + 30,
+                            '#f97316'
+                        ));
+                    }
+                }
+            }
+
+            takeDamage(amount, type) {
+                this.hp = Math.max(0, this.hp - amount);
+                this.state = 'hit';
+                this.hitTimer = 20;
+                screenShake = type === 'heavy' ? 12 : 5;
+
+                // 튀김 가루 파티클 대량 방출
+                for (let i = 0; i < 8; i++) {
+                    particles.push(new Particle(this.x + this.width / 2, this.y + this.height / 2, '#fdba74'));
+                }
+            }
+        }
+
+        // 둥근 사각형 그리기 도우미
+        function fillRoundedRect(context, x, y, width, height, radius) {
+            context.beginPath();
+            context.moveTo(x + radius, y);
+            context.lineTo(x + width - radius, y);
+            context.quadraticCurveTo(x + width, y, x + width, y + radius);
+            context.lineTo(x + width, y + height - radius);
+            context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            context.lineTo(x + radius, y + height);
+            context.quadraticCurveTo(x, y + height, x, y + height - radius);
+            context.lineTo(x, y + radius);
+            context.quadraticCurveTo(x, y, x + radius, y);
+            context.closePath();
+            context.fill();
+        }
+
+        function drawCrossEye(context, x, y) {
+            context.strokeStyle = '#0f172a';
+            context.lineWidth = 3;
+            context.beginPath();
+            context.moveTo(x - 5, y - 5);
+            context.lineTo(x + 5, y + 5);
+            context.moveTo(x + 5, y - 5);
+            context.lineTo(x - 5, y + 5);
+            context.stroke();
+        }
+
+        // 14. 파이터 인스턴스 초기화
+        let player = new Fighter({
+            x: 150,
+            y: 100,
+            color: '#fdba74', // 등심의 황금 바삭색
+            isPlayer: true,
+            name: "로스카츠"
+        });
+
+        let cpu = new Fighter({
+            x: 580,
+            y: 100,
+            color: '#fb7185', // 안심의 속살 핑크 튀김색
+            isPlayer: false,
+            name: "히레카츠"
+        });
+
+        // 키보드 입출력 이벤트 청취 (공격 반응 속도 대폭 개선)
+        window.addEventListener('keydown', (e) => {
+            if (!gameActive) return; // 격투 개시 전에 입력을 차단하여 에러 및 상태 왜곡 방지
+            const key = e.key.toLowerCase();
+            
+            // 이동 단축키
+            if (key === 'a') keys.a = true;
+            if (key === 'd') keys.d = true;
+            
+            // 점프 동작 (1회성 트리거 보장)
+            if (key === 'w') {
+                keys.w = true;
+                player.jump();
+            }
+
+            // 공격 동작 (J, K, L 키를 누르는 즉시 격렬한 공격 메서드 활성화)
+            if (key === 'j') {
+                player.attack('light');
+            }
+            if (key === 'k') {
+                player.attack('heavy');
+            }
+            if (key === 'l') {
+                player.attack('special');
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === 'a') keys.a = false;
+            if (key === 'd') keys.d = false;
+            if (key === 'w') keys.w = false;
+        });
+
+        // 모바일 가상 컨트롤 허브 연계
+        setupTouchButton('touch-left', () => { keys.a = true; }, () => { keys.a = false; });
+        setupTouchButton('touch-right', () => { keys.d = true; }, () => { keys.d = false; });
+        setupTouchButton('touch-jump', () => { player.jump(); }, () => {});
+        setupTouchButton('touch-light', () => { player.attack('light'); }, () => {});
+        setupTouchButton('touch-heavy', () => { player.attack('heavy'); }, () => {});
+        setupTouchButton('touch-special', () => { player.attack('special'); }, () => {});
+
+        function setupTouchButton(id, pressCallback, releaseCallback) {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+            
+            btn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                pressCallback();
+            });
+            btn.addEventListener('mouseup', (e) => {
+                e.preventDefault();
+                releaseCallback();
+            });
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                pressCallback();
+            });
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                releaseCallback();
+            });
+        }
+
+        // 15. 인공지능 CPU 행동 결정 트리 수식화
+        function handleCpuAI() {
+            if (cpu.state === 'hit' || cpu.hp <= 0) return;
+
+            const distance = Math.abs((player.x + player.width/2) - (cpu.x + cpu.width/2));
+            
+            // 플레이어 방향을 향해 늘 정렬
+            if (player.x > cpu.x) {
+                cpu.direction = 1;
+            } else {
+                cpu.direction = -1;
+            }
+
+            // 거리 및 감지 기반 행동 결정
+            if (distance > 180) {
+                // 원거리: 플레이어를 향해 적극적인 접근 전술 전개
+                if (player.x > cpu.x) {
+                    cpu.vx = 3.5;
+                } else {
+                    cpu.vx = -3.5;
+                }
+                
+                // 가끔 기습 점프 구사 (확률형 도약)
+                if (Math.random() < 0.015) {
+                    cpu.jump();
+                }
+            } else if (distance <= 180 && distance > 70) {
+                // 공격 사거리 임계점: 확률형 기술 연계 기틀
+                let rand = Math.random();
+                if (rand < 0.03) {
+                    cpu.attack('light');
+                } else if (rand < 0.05) {
+                    cpu.attack('heavy');
+                } else if (rand < 0.065) {
+                    cpu.attack('special');
+                }
+            } else {
+                // 초근접전: 가끔 뒤로 후퇴 회피 기동
+                if (Math.random() < 0.1) {
+                    cpu.vx = cpu.direction === 1 ? -4 : 4; // 반대 방향 대시 회피
+                } else {
+                    cpu.attack('light');
+                }
+            }
+        }
+
+        // 16. 경기장 맵 배경 및 타격 히트 박스 판정
+        function drawBackground() {
+            // 그라데이션 주방 도마 경기장 배경
+            let skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGrad.addColorStop(0, '#1e293b');
+            skyGrad.addColorStop(1, '#0f172a');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 주방 풍경 데코 (도마 패턴 그리기)
+            ctx.fillStyle = 'rgba(251, 146, 60, 0.03)';
+            for (let i = 0; i < canvas.width; i += 40) {
+                ctx.fillRect(i, 0, 20, canvas.height);
+            }
+
+            // 뜨거운 철판 무대 (Ground 바닥선)
+            let stageGrad = ctx.createLinearGradient(0, 320, 0, canvas.height);
+            stageGrad.addColorStop(0, '#f97316'); // 타오르는 뜨거운 튀김팬 테두리
+            stageGrad.addColorStop(0.1, '#7c2d12');
+            stageGrad.addColorStop(1, '#431407');
+            ctx.fillStyle = stageGrad;
+            ctx.fillRect(0, 320, canvas.width, canvas.height - 320);
+
+            // 팬 하부 불꽃 및 스파크 디테일
+            ctx.fillStyle = '#f97316';
+            ctx.globalAlpha = 0.3;
+            ctx.fillRect(0, 318, canvas.width, 2);
+            ctx.globalAlpha = 1.0;
+        }
+
+        function checkHitboxCollision(attacker, target) {
+            if (!attacker.hitBox.active || target.state === 'hit') return;
+
+            // 사각 격자 충돌 판정 (AABB Collision)
+            const box = attacker.hitBox;
+            if (
+                box.x < target.x + target.width &&
+                box.x + box.width > target.x &&
+                box.y < target.y + target.height &&
+                box.y + box.height > target.y
+            ) {
+                // 피격 확정: 타입별 고유 데미지 공식 주입
+                let dmg = 5;
+                if (box.type === 'heavy') dmg = 12;
+                if (box.type === 'special') dmg = 18;
+
+                target.takeDamage(dmg, box.type);
+                attacker.hitBox.active = false; // 일회성 판정으로 무효화
+
+                // 플레이어와 CPU 피격 시 체력 수치 동기화
+                updateHealthUI();
+            }
+        }
+
+        function updateHealthUI() {
+            const pBar = document.getElementById('player-hp-bar');
+            const pHpText = document.getElementById('player-hp-text');
+            const cBar = document.getElementById('cpu-hp-bar');
+            const cHpText = document.getElementById('cpu-hp-text');
+
+            if (pBar) {
+                pBar.style.width = `${player.hp}%`;
+                pHpText.textContent = `${player.hp}%`;
+            }
+            if (cBar) {
+                cBar.style.width = `${cpu.hp}%`;
+                cHpText.textContent = `${cpu.hp}%`;
+            }
+        }
+
+        // 17. 60FPS 격투 게임 렌더 루프 가동
+        function gameLoop() {
+            if (!gameActive) return;
+
+            // 스크린 쉐이크 진동 계산
+            ctx.save();
+            if (screenShake > 0) {
+                let dx = (Math.random() - 0.5) * screenShake;
+                let dy = (Math.random() - 0.5) * screenShake;
+                ctx.translate(dx, dy);
+                screenShake *= 0.9;
+                if (screenShake < 0.5) screenShake = 0;
+            }
+
+            // 화면 청소 및 무대 가속
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
+
+            // P1 로스카츠 조작 제어 입력
+            if (keys.a) {
+                player.vx = -4.5;
+                player.direction = -1;
+            }
+            if (keys.d) {
+                player.vx = 4.5;
+                player.direction = 1;
+            }
+
+            // 실시간 상태 업데이트
+            player.update();
+            cpu.update();
+
+            // 인공지능 루틴 구동
+            handleCpuAI();
+
+            // 충돌 감시 분석
+            checkHitboxCollision(player, cpu);
+            checkHitboxCollision(cpu, player);
+
+            // 파티클 시스템 드로잉
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].alpha <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+
+            // 프레임 물리 그리기
+            player.draw();
+            cpu.draw();
+
+            ctx.restore();
+
+            // 생사 판정 체크
+            if (player.hp <= 0) {
+                endGame(false, "패배.. 안심 무사가 참맛을 차지했습니다!");
+            } else if (cpu.hp <= 0) {
+                endGame(true, "승리! 등심의 바삭한 타격감이 정상을 탈환했습니다!");
+            } else {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // 18. 게임 시작 / 종료 인터페이스 제어
+        function startGame() {
+            // 사운드 초기 허가 동기화
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            // 플레이 상태 복원
+            player.hp = 100;
+            player.x = 150;
+            player.y = 100;
+            player.vx = 0;
+            player.vy = 0;
+            player.state = 'idle';
+
+            cpu.hp = 100;
+            cpu.x = 580;
+            cpu.y = 100;
+            cpu.vx = 0;
+            cpu.vy = 0;
+            cpu.state = 'idle';
+
+            particles = [];
+            updateHealthUI();
+
+            gameTimerVal = 99;
+            document.getElementById('game-timer').textContent = gameTimerVal;
+            document.getElementById('game-overlay').classList.add('hidden');
+
+            gameActive = true;
+
+            // 타이머 기동
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                gameTimerVal--;
+                document.getElementById('game-timer').textContent = gameTimerVal;
+                if (gameTimerVal <= 0) {
+                    clearInterval(timerInterval);
+                    // 타임오버 시 피체력량 높은 쪽 승리 판정
+                    if (player.hp >= cpu.hp) {
+                        endGame(true, "타임아웃! 체력 우세로 등심 전사가 우승했습니다!");
+                    } else {
+                        endGame(false, "타임아웃! 안심 전사의 방어가 완벽했습니다.");
+                    }
+                }
+            }, 1000);
+
+            requestAnimationFrame(gameLoop);
+            showToast("⚔️ 결투 개시", "맛과 육즙의 우위를 가립니다!");
+        }
+
+        function endGame(victory, message) {
+            gameActive = false;
+            clearInterval(timerInterval);
+
+            const overlay = document.getElementById('game-overlay');
+            const oTitle = document.getElementById('overlay-title');
+            const oDesc = document.getElementById('overlay-desc');
+
+            overlay.classList.remove('hidden');
+            oTitle.textContent = victory ? "🏆 VICTORY!" : "💀 DEFEAT";
+            oDesc.textContent = message;
+
+            if (victory) {
+                addXP(50, "격투 대회에서 우승을 차지했습니다!");
+            } else {
+                addXP(10, "패배의 교훈을 삼아 다시 도전해 보세요!");
+            }
+        }
+
+        // 19. Gemini 2.5 Flash API 활용한 AI 돈까스 전문가 비서 (AI Agent)
+        const apiKey = ""; // 런타임에 삽입되는 API Key 자리
+
+        // 오권욱의 돈까스 전문 페르소나 (표준어 중심)
+        const systemPrompt = `
+        당신은 부산 해운대에서 나고 자라며 28년간 부산의 수많은 돈까스 맛집 데이터를 철저하게 분석하고 축적해 온 전문가 '오권욱'입니다.
+        아래 기틀 지식을 완벽히 파악하여, 상대방이 오권욱 소장님이나 부산 돈까스 맛집에 대해 질문하면 정중하고 예리하며 신뢰감 있는 표준어(해요체, ~입니다, ~합니다, ~해보세요)로 대답해 주세요. 사투리는 사용하지 말아야 합니다.
+
+        [오권욱 소장의 엄선 데이터베이스]
+        - 시그니처 추천 목록 3선:
+           1) '광안리 톤쇼우': 수영구 민락동 위치. 프리미엄 참숯 훈연 카츠가 최상의 만족도를 제공합니다. 가브리살 부위가 붙은 한정 메뉴 '버크셔K 특 로스카츠'가 시그니처입니다. 오전 10시 정각에 원격 대기 시스템(테이블링)을 아주 기민하게 조작해야 성공할 수 있습니다.
+           2) '남포동 이승학돈까스': 1999년부터 남포동 광복동 패션거리를 지켜온 정통 경양식 레코드의 상징입니다. 25가지 다양한 천연 재료를 정성스럽게 우려낸 소스가 일품이며, 고소하게 잘 펴진 고기와 스프의 매칭이 매우 명품입니다. 매운돈까스와 고구마치즈돈까스 등의 폭넓은 메뉴가 있습니다.
+           3) '서면 수수하지만 굉장해': 전포 사잇길 골목길에 자리해 있으며, 부드러운 구성의 모둠 카츠와 유자 향 가득한 시원한 소바, 그리고 소금 페어링이 특징입니다. 유자 셔벗으로 마무리하는 깔끔함을 장점으로 내세웁니다.
+
+        - 돈까스 철학 및 주관:
+           1) 완벽한 숙성과 최상의 수분을 확보하여 선홍빛 미오글로빈 상태의 훌륭한 익힘 정도를 끌어내는 것이 중요합니다.
+           2) 과한 시판 소스보다는 좋은 고기 본연의 단맛을 극대화해 줄 수 있는 고급 소금이나 와사비 등의 마리아주를 최고로 취급합니다.
+
+        - 답변 시 가이드라인:
+           1) 반드시 표준어 해요체 존댓말을 유지하십시오. ("~입니더", "~했습니데이", "직입니다" 등 부산 사투리는 절대로 사용하지 마십시오.)
+           2) 차분하면서도 28년 로컬 데이터의 깊은 전문성이 돋보이도록 자신감 있게 안내해 주세요.
+        `;
+
+        async function handleChatSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const messagesContainer = document.getElementById('chat-messages');
+
+            if (!input || !input.value.trim()) return;
+
+            const userText = input.value.trim();
+            input.value = '';
+
+            // 사용자 텍스트 렌더링
+            appendMessage("me", userText);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // 로딩 표시
+            const loadingId = appendMessage("system", "오권욱 소장이 지도를 기반으로 최적의 맛을 정독하고 있습니다... 🐖", "👨‍🍳");
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            try {
+                const responseText = await callGeminiAPI(userText);
+                removeMessage(loadingId);
+                appendMessage("system", responseText, "👨‍🍳");
+                addXP(15, "로컬 비결 데이터를 안전하게 수신했습니다.");
+            } catch (err) {
+                removeMessage(loadingId);
+                // 오프라인/키 미지정 대비 완벽 표준어 폴백 가동
+                const fallbackResponse = getLocalFallback(userText);
+                appendMessage("system", fallbackResponse + "\n\n*(현재 임시 오프라인 로컬 가이드 모드로 정상 안내해 드렸습니다.)*", "👨‍🍳");
+                addXP(5, "백업 가이드 노트를 참고했습니다.");
+            }
+
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function appendMessage(sender, text, icon = "👤") {
+            const container = document.getElementById('chat-messages');
+            const msgId = "msg-" + Date.now() + Math.random().toString(36).substr(2, 5);
+            
+            const outerDiv = document.createElement('div');
+            outerDiv.id = msgId;
+            outerDiv.className = sender === "me" ? "flex items-start justify-end space-x-3" : "flex items-start space-x-3";
+
+            if (sender === "me") {
+                outerDiv.innerHTML = `
+                    <div class="p-3.5 rounded-2xl bg-orange-500 text-white text-xs max-w-[80%] shadow-md leading-relaxed">
+                        ${text}
+                    </div>
+                `;
+            } else {
+                outerDiv.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs flex-shrink-0 font-bold">${icon}</div>
+                    <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-950 text-xs max-w-[80%] border border-slate-100 dark:border-slate-850/40 text-slate-700 dark:text-slate-300 shadow-sm leading-relaxed whitespace-pre-line">
+                        ${text}
+                    </div>
+                `;
+            }
+
+            container.appendChild(outerDiv);
+            return msgId;
+        }
+
+        function removeMessage(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        // 지수 백오프 기반 API 호출
+        async function callGeminiAPI(userQuery) {
+            const maxRetries = 5;
+            let attempt = 0;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            while (attempt < maxRetries) {
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API Status Code: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    const aiText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (aiText) return aiText;
+                    throw new Error("Invalid response");
+                } catch (error) {
+                    attempt++;
+                    if (attempt >= maxRetries) {
+                        throw error;
+                    }
+                    const delay = Math.pow(2, attempt - 1) * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+
+        // 지능형 표준어 폴백 엔진 (사투리 완전 배제)
+        function getLocalFallback(query) {
+            const q = query.toLowerCase();
+            if (q.includes("톤쇼우") || q.includes("광안리")) {
+                return "톤쇼우는 참숯 오븐 훈연을 더하여 입안에 넣는 순간 특유의 짙은 향이 일품인 프리미엄 로스카츠의 명가입니다. 매장 방문 전 테이블링 앱을 가동해 '오전 10시 정각'에 신속히 예약을 클릭하는 노하우가 절대적으로 필요합니다.";
+            } else if (q.includes("이승학") || q.includes("남포")) {
+                return "남포동 이승학돈까스는 1999년부터 한 자리를 당당하게 지켜온 클래식 경양식의 대표 주자입니다. 정성스레 만든 갈색 수제 데미글라스 소스가 고기와 훌륭하게 연계되어 자극적이지 않으면서도 깊은 감동을 줍니다. 수프에 후추를 가볍게 더해 식사를 시작해 보시는 것을 적극 추천해 드립니다.";
+            } else if (q.includes("수수") || q.includes("서면") || q.includes("전포")) {
+                return "서면 전포사잇길에 위치한 '수수하지만 굉장해'는 미니멀한 구성과 함께 훌륭한 퀄리티를 유지하고 있습니다. 특히 등심 끝의 맛있는 지방질 결을 분홍빛 히말라야 암염 소금에 살짝 찍어 맛보시면 최고의 감칠맛을 즐기실 수 있습니다.";
+            } else if (q.includes("추천") || q.includes("어디") || q.includes("맛집")) {
+                return "완벽한 일식 훈연 불맛을 선호하신다면 광안리의 '톤쇼우'를, 역사와 추억이 어우러진 경양식의 정통 깊이를 원하신다면 남포동 '이승학돈까스'를, 정갈하고 아기자기한 구성의 트렌디함을 추구하신다면 서면 '수수하지만 굉장해'를 권장해 드립니다. 취향에 따라 선택해 보세요.";
+            }
+            return "흥미롭고 예리한 질문을 해 주셨네요! 현재 API 네트워크 가동이 지연되는 동안 오권욱 소장의 수동 가이드를 바탕으로 임시 응답을 전송해 드립니다. 엄선된 3선 맛집들에 대한 가이드는 상단 리스트에서 '상세 비밀 가이드 열기' 버튼을 통해 즉시 모두 정독해 보실 수 있습니다.";
+        }
+
+        // 초기화
+        window.onload = function() {
+            typeEffect();
+            updateGamificationUI();
+            
+            // 캔버스 사이즈가 화면 크기에 맞추어 responsive하게 조절되도록 제어
+            const canvasContainer = canvas.parentElement;
+            function resizeCanvas() {
+                // 800x400 비율 보존
+                const parentWidth = canvasContainer.clientWidth;
+                canvas.style.width = parentWidth + 'px';
+                canvas.style.height = (parentWidth * 0.5) + 'px';
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            // 배경 기본 드로잉
+            drawBackground();
+        }
+    </script>
+</body>
+</html>
