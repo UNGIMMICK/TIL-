@@ -349,8 +349,34 @@
                     </div>
                 </div>
 
+                <div class="mt-3 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button id="pause-btn" onclick="togglePauseGame()" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">⏸️ 일시정지</button>
+                        <button onclick="startGame()" class="px-3 py-1.5 rounded-xl bg-orange-500 text-[10px] sm:text-xs font-bold text-white hover:bg-orange-600 transition-all">🔄 다시 시작</button>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="rounded-xl bg-slate-50 dark:bg-slate-950 px-2.5 py-1.5 text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-200">
+                            <span class="opacity-70">콤보</span> <span id="combo-score" class="text-orange-500">0</span>
+                        </div>
+                        <div class="rounded-xl bg-slate-50 dark:bg-slate-950 px-2.5 py-1.5 text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-200">
+                            <span class="opacity-70">점수</span> <span id="score-score" class="text-orange-500">0</span>
+                        </div>
+                        <div class="rounded-xl bg-slate-50 dark:bg-slate-950 px-2.5 py-1.5 text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-200">
+                            <span class="opacity-70">최고콤보</span> <span id="best-combo" class="text-orange-500">0</span>
+                        </div>
+                        <label class="flex items-center gap-1.5 rounded-xl bg-slate-50 dark:bg-slate-950 px-2.5 py-1.5 text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-200">
+                            <span class="opacity-70">난이도</span>
+                            <select id="difficulty-select" onchange="changeDifficulty(this.value)" class="bg-transparent focus:outline-none text-orange-600 dark:text-orange-400">
+                                <option value="easy">Easy</option>
+                                <option value="normal" selected>Normal</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
                 <!-- 격투 캔버스 스크린 (종횡비 및 터치 스케일 유지용 컨테이너) -->
-                <div class="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-850 bg-slate-950 shadow-inner">
+                <div class="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-850 bg-slate-950 shadow-inner mt-3">
                     <canvas id="fight-canvas" class="block mx-auto w-full max-w-full h-auto bg-slate-950 touch-none" width="800" height="400"></canvas>
                     
                     <!-- 시작 / 승리 / 게임오버 오버레이 레이어 -->
@@ -974,9 +1000,14 @@
 
         // 게임 스케일 상태
         let gameActive = false;
+        let gamePaused = false;
         let gameTimerVal = 99;
         let timerInterval = null;
         let screenShake = 0;
+        let combo = 0;
+        let bestCombo = 0;
+        let score = 0;
+        let difficulty = 'normal';
 
         // 조작 단자 매핑 상태
         const keys = {
@@ -1219,11 +1250,14 @@
                 this.state = 'hit';
                 this.hitTimer = 20;
                 screenShake = type === 'heavy' ? 12 : 5;
+                combo = 0;
+                score = Math.max(0, score - 10);
 
                 // 튀김 가루 파티클 대량 방출
                 for (let i = 0; i < 8; i++) {
                     particles.push(new Particle(this.x + this.width / 2, this.y + this.height / 2, '#fdba74'));
                 }
+                updateHealthUI();
             }
         }
 
@@ -1336,7 +1370,7 @@
         }
 
         // 15. 인공지능 CPU 행동 결정 트리 수식화
-        function handleCpuAI() {
+        function handleCpuAI(aiBias = 1) {
             if (cpu.state === 'hit' || cpu.hp <= 0) return;
 
             const distance = Math.abs((player.x + player.width/2) - (cpu.x + cpu.width/2));
@@ -1352,28 +1386,28 @@
             if (distance > 180) {
                 // 원거리: 플레이어를 향해 적극적인 접근 전술 전개
                 if (player.x > cpu.x) {
-                    cpu.vx = 3.5;
+                    cpu.vx = 3.5 * aiBias;
                 } else {
-                    cpu.vx = -3.5;
+                    cpu.vx = -3.5 * aiBias;
                 }
                 
                 // 가끔 기습 점프 구사 (확률형 도약)
-                if (Math.random() < 0.015) {
+                if (Math.random() < 0.015 * aiBias) {
                     cpu.jump();
                 }
             } else if (distance <= 180 && distance > 70) {
                 // 공격 사거리 임계점: 확률형 기술 연계 기틀
                 let rand = Math.random();
-                if (rand < 0.03) {
+                if (rand < 0.03 * aiBias) {
                     cpu.attack('light');
-                } else if (rand < 0.05) {
+                } else if (rand < 0.05 * aiBias) {
                     cpu.attack('heavy');
-                } else if (rand < 0.065) {
+                } else if (rand < 0.065 * aiBias) {
                     cpu.attack('special');
                 }
             } else {
                 // 초근접전: 가끔 뒤로 후퇴 회피 기동
-                if (Math.random() < 0.1) {
+                if (Math.random() < 0.1 * aiBias) {
                     cpu.vx = cpu.direction === 1 ? -4 : 4; // 반대 방향 대시 회피
                 } else {
                     cpu.attack('light');
@@ -1430,6 +1464,14 @@
                 target.takeDamage(dmg, box.type);
                 attacker.hitBox.active = false; // 일회성 판정으로 무효화
 
+                if (attacker.isPlayer) {
+                    score += box.type === 'special' ? 45 : box.type === 'heavy' ? 30 : 18;
+                    updateCombo(1);
+                } else {
+                    combo = 0;
+                    updateHealthUI();
+                }
+
                 // 플레이어와 CPU 피격 시 체력 수치 동기화
                 updateHealthUI();
             }
@@ -1440,6 +1482,9 @@
             const pHpText = document.getElementById('player-hp-text');
             const cBar = document.getElementById('cpu-hp-bar');
             const cHpText = document.getElementById('cpu-hp-text');
+            const comboEl = document.getElementById('combo-score');
+            const scoreEl = document.getElementById('score-score');
+            const bestEl = document.getElementById('best-combo');
 
             if (pBar) {
                 pBar.style.width = `${player.hp}%`;
@@ -1449,11 +1494,49 @@
                 cBar.style.width = `${cpu.hp}%`;
                 cHpText.textContent = `${cpu.hp}%`;
             }
+            if (comboEl) comboEl.textContent = combo;
+            if (scoreEl) scoreEl.textContent = score;
+            if (bestEl) bestEl.textContent = bestCombo;
+        }
+
+        function updateCombo(delta) {
+            combo = Math.max(0, combo + delta);
+            bestCombo = Math.max(bestCombo, combo);
+            updateHealthUI();
+        }
+
+        function resetGameStats() {
+            combo = 0;
+            bestCombo = 0;
+            score = 0;
+            updateHealthUI();
+        }
+
+        function togglePauseGame() {
+            if (!gameActive) return;
+            gamePaused = !gamePaused;
+            const btn = document.getElementById('pause-btn');
+            if (btn) {
+                btn.textContent = gamePaused ? '▶️ 계속하기' : '⏸️ 일시정지';
+            }
+            if (gamePaused) {
+                showToast('⏸️ 게임 일시정지', '잠시 숨을 고르고 다시 도전해 보세요.');
+            }
+        }
+
+        function changeDifficulty(value) {
+            difficulty = value;
+            showToast('🎯 난이도 변경', `${value === 'hard' ? '하드' : value === 'easy' ? '이지' : '노멀'} 모드로 조정되었습니다.`);
         }
 
         // 17. 60FPS 격투 게임 렌더 루프 가동
         function gameLoop() {
-            if (!gameActive) return;
+            if (!gameActive || gamePaused) {
+                if (gameActive && gamePaused) {
+                    requestAnimationFrame(gameLoop);
+                }
+                return;
+            }
 
             // 스크린 쉐이크 진동 계산
             ctx.save();
@@ -1484,7 +1567,8 @@
             cpu.update();
 
             // 인공지능 루틴 구동
-            handleCpuAI();
+            const aiBias = difficulty === 'hard' ? 1.2 : difficulty === 'easy' ? 0.7 : 1;
+            handleCpuAI(aiBias);
 
             // 충돌 감시 분석
             checkHitboxCollision(player, cpu);
@@ -1522,6 +1606,12 @@
                 audioCtx.resume();
             }
 
+            gamePaused = false;
+            const pauseBtn = document.getElementById('pause-btn');
+            if (pauseBtn) {
+                pauseBtn.textContent = '⏸️ 일시정지';
+            }
+
             // 플레이 상태 복원
             player.hp = 100;
             player.x = 150;
@@ -1538,6 +1628,7 @@
             cpu.state = 'idle';
 
             particles = [];
+            resetGameStats();
             updateHealthUI();
 
             gameTimerVal = 99;
@@ -1568,6 +1659,7 @@
 
         function endGame(victory, message) {
             gameActive = false;
+            gamePaused = false;
             clearInterval(timerInterval);
 
             const overlay = document.getElementById('game-overlay');
@@ -1579,8 +1671,12 @@
             oDesc.textContent = message;
 
             if (victory) {
+                score += 250 + bestCombo * 10;
+                updateHealthUI();
                 addXP(50, "격투 대회에서 우승을 차지했습니다!");
             } else {
+                score = Math.max(0, score - 50);
+                updateHealthUI();
                 addXP(10, "패배의 교훈을 삼아 다시 도전해 보세요!");
             }
         }
